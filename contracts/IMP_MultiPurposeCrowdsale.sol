@@ -8,6 +8,10 @@ contract IMP_MultiPurposeCrowdsale is Ownable {
   using SafeMath for uint256;
 
   enum MintPurpose {preICO, ico, team, platform, airdrops} // Supplier.State.inactive
+  enum CrowdsaleType {preICO, ico}
+
+  CrowdsaleType public crowdsaleType;
+  uint256 internal pendingTokens;  //  tokens calculated for current tx
 
   uint8 public tokenPercentageReserved_preICO;    //  % of tokens reserved for pre_ICO
   uint8 public tokenPercentageReserved_ico;       //  % of tokens reserved for ICO
@@ -27,6 +31,12 @@ contract IMP_MultiPurposeCrowdsale is Ownable {
   uint256 public tokensMinted_team;      //  tokens minted for team
   uint256 public tokensMinted_platform;  //  tokens minted for platform 
   uint256 public tokensMinted_airdrops;  //  tokens minted for airdrops
+
+  /**
+   * EVENTS
+   */
+   event ErrorWhileUpdateMintedTokenNumbersForCrowdsale(CrowdsaleType _crowdsaleType, uint256 _tokenAmount);
+   event ErrorWhileUpdateMintedTokenNumbers(MintPurpose _mintPurpose, uint256 _tokenAmount);
   
   
   /**
@@ -93,6 +103,27 @@ contract IMP_MultiPurposeCrowdsale is Ownable {
   function tokensAvailableToMint_airdrops() public view onlyOwner returns(uint256) {
     return tokenLimitReserved_airdrops.sub(tokensMinted_airdrops);
   }
+
+  /**
+  * INTERNAL
+  */
+
+   /**
+   * @dev Update token mined numbers after minting.
+   * @param _crowdsaleType Purpose of minting
+   * @param _tokenAmount Number of tokens were minted
+   */
+  function updateMintedTokenNumbersForCrowdsale(CrowdsaleType _crowdsaleType, uint256 _tokenAmount) internal {
+    if(_crowdsaleType == CrowdsaleType.preICO) {
+      updateMintedTokenNumbers(MintPurpose.preICO, _tokenAmount);
+    } else if(_crowdsaleType == CrowdsaleType.ico) {
+      updateMintedTokenNumbers(MintPurpose.ico, _tokenAmount);
+    } else {
+      emit ErrorWhileUpdateMintedTokenNumbersForCrowdsale(_crowdsaleType, _tokenAmount);
+      revert();
+    }
+  }
+
   
   /**
    * @dev Validation of crowdsale limits.
@@ -121,13 +152,18 @@ contract IMP_MultiPurposeCrowdsale is Ownable {
    * @param _tokenAmount Number of tokens were minted
    */
   function updateMintedTokenNumbers(MintPurpose _mintPurpose, uint256 _tokenAmount) internal {
-    if (_mintPurpose == MintPurpose.team) {
+    if (_mintPurpose == MintPurpose.preICO) {
+      tokensMinted_preICO = tokensMinted_preICO.add(_tokenAmount);
+    } else if (_mintPurpose == MintPurpose.ico) {
+      tokensMinted_ico = tokensMinted_ico.add(_tokenAmount);
+    } else if (_mintPurpose == MintPurpose.team) {
       tokensMinted_team = tokensMinted_team.add(_tokenAmount);
     }  else if (_mintPurpose == MintPurpose.platform) {
       tokensMinted_platform = tokensMinted_platform.add(_tokenAmount);
     } else if (_mintPurpose == MintPurpose.airdrops) {
       tokensMinted_airdrops = tokensMinted_airdrops.add(_tokenAmount);
     } else {
+      emit ErrorWhileUpdateMintedTokenNumbers(_mintPurpose, _tokenAmount);
       revert();
     }
   }

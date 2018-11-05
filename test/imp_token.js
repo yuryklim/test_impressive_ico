@@ -19,8 +19,4 @@ contract('IMP_Token', (accounts) => {
   it("should validate token decimals after migration", async () => {
     assert.equal(await token.decimals.call(), 4, "wrong token decimals");
   });
-
-  it("should validate token totalSupply after migration", async () => {
-    assert.equal(await token.totalSupply.call(), 0, "wrong token totalSupply");
-  });
 });

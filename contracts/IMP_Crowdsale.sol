@@ -7,10 +7,6 @@ import "../node_modules/zeppelin-solidity/contracts/crowdsale/validation/Whiteli
 
 contract IMP_Crowdsale is WhitelistedCrowdsale, IMP_MultiPurposeCrowdsale {
 
-  enum CrowdsaleType {preICO, ico}
-  
-  CrowdsaleType public crowdsaleType;
-
   IMP_Token internal token;
 
   /**
@@ -21,11 +17,6 @@ contract IMP_Crowdsale is WhitelistedCrowdsale, IMP_MultiPurposeCrowdsale {
   /**
    * MODIFIERS
    */
-
-
-  /**
-   * PUBLIC
-  */
 
   /**
    * @dev Constructor function.
@@ -83,7 +74,7 @@ contract IMP_Crowdsale is WhitelistedCrowdsale, IMP_MultiPurposeCrowdsale {
    * @param _weiAmount Value in wei involved in the purchase
    */
   function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
-    uint256 pendingTokens = _getTokenAmount(_weiAmount);
+    pendingTokens = _getTokenAmount(_weiAmount);
     
     MintPurpose mintPurpose = (crowdsaleType == CrowdsaleType.preICO) ? MintPurpose.preICO : MintPurpose.ico;
     validateMintLimits(pendingTokens, mintPurpose);
@@ -91,14 +82,7 @@ contract IMP_Crowdsale is WhitelistedCrowdsale, IMP_MultiPurposeCrowdsale {
     super._preValidatePurchase(_beneficiary, _weiAmount);
   }
 
-  /**
-   * @dev Executed when a purchase has been validated and is ready to be executed. Not necessarily emits/sends tokens.
-   * @param _beneficiary Address receiving the tokens
-   * @param _tokenAmount Number of tokens to be purchased
-   */
-  function _processPurchase(address _beneficiary, uint256 _tokenAmount) internal {
-    _deliverTokens(_beneficiary, _tokenAmount);
-}
+  
    
   /**
    * @dev Source of tokens. Override this method to modify the way in which the crowdsale ultimately gets and sends its tokens.
@@ -119,8 +103,18 @@ contract IMP_Crowdsale is WhitelistedCrowdsale, IMP_MultiPurposeCrowdsale {
   }
 
   /**
+   * @dev Override for extensions that require an internal state to check for validity (current user contributions, etc.)
+   * @param _beneficiary Address receiving the tokens
+   * @param _weiAmount Value in wei involved in the purchase
+   */
+  function _updatePurchasingState(address _beneficiary, uint256 _weiAmount) internal {
+    updateMintedTokenNumbersForCrowdsale(crowdsaleType, pendingTokens);
+    super._updatePurchasingState(_beneficiary, _weiAmount);
+  }
+
+  /**
    * @dev Determines how ETH is stored/forwarded on purchases.
-   *      We should not forward funds.
+   * We should not forward funds.
    */
   function _forwardFunds() internal { }
 

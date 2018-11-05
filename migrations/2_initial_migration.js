@@ -15,7 +15,7 @@ module.exports = (deployer, network, accounts) => {
 
   const CROWDSALE_RATE = 10; // tokens per 1 ETH
   const CROWDSALE_WALLET = accounts[4];
-  const CROWDSALE_TOTAL_SUPPLY_LIMIT = 100000000; //  100 000 000
+  const CROWDSALE_TOTAL_SUPPLY_LIMIT = 100000000 * TOKEN_DECIMALS;
 
   const TOKEN_PERCENTAGE_RESERVED_PRE_ICO = 30;
   const TOKEN_PERCENTAGE_RESERVED_ICO = 44;
