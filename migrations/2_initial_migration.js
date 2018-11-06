@@ -1,5 +1,6 @@
 let IMP_Token = artifacts.require("./IMP_Token.sol");
 let IMP_Crowdsale = artifacts.require("./IMP_Crowdsale.sol");
+let IncreaseTime = require("../test/helpers/increaseTime.js");
 
 /**
  * IMPORTANT: 
@@ -19,6 +20,9 @@ module.exports = (deployer, network, accounts) => {
   const CROWDSALE_WALLET = accounts[4];
   const CROWDSALE_TOTAL_SUPPLY_LIMIT = 100000000;
 
+  const CROWDSALE_OPENING = web3.eth.getBlock("latest").timestamp;
+  const CROWDSALE_CLOSING = CROWDSALE_OPENING + IncreaseTime.duration.days(1);
+
   const TOKEN_PERCENTAGE_RESERVED_PRE_ICO = 30;
   const TOKEN_PERCENTAGE_RESERVED_ICO = 44;
   const TOKEN_PERCENTAGE_RESERVED_TEAM = 18;
@@ -32,6 +36,8 @@ module.exports = (deployer, network, accounts) => {
         await deployer.deploy(
           IMP_Crowdsale, 
           CROWDSALE_TYPE_PRE_ICO,
+          CROWDSALE_OPENING, 
+          CROWDSALE_CLOSING,
           MINIMUM_PURCHASE_WEI,
           CROWDSALE_RATE_ETH,  
           CROWDSALE_WALLET, 

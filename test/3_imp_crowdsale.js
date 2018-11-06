@@ -1,5 +1,5 @@
-let IMP_Crowdsale = artifacts.require("IMP_Crowdsale.sol");
-let IMP_Token = artifacts.require("IMP_Token.sol");
+let IMP_Crowdsale = artifacts.require("./IMP_Crowdsale.sol");
+let IMP_Token = artifacts.require("./IMP_Token.sol");
 
 const expectThrow = require('./helpers/expectThrow');
 const Reverter = require('./helpers/reverter');

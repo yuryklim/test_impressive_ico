@@ -22,7 +22,7 @@ contract("Pausable", (accounts) => {
     await Reverter.revert();
   });
 
-  describe.only("pausable functional", () => {
+  describe("pausable functional", () => {
     it("should allow owner to pause / unpause crowdsale", async () => {
 
       await crowdsale.pause();

@@ -1,4 +1,4 @@
-let IMP_Crowdsale = artifacts.require("IMP_Crowdsale");
+let IMP_Crowdsale = artifacts.require("./IMP_Crowdsale");
 
 const expectThrow = require('./helpers/expectThrow');
 const Reverter = require('./helpers/reverter');
