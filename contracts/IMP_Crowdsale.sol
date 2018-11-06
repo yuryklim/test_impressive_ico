@@ -4,8 +4,9 @@ import "./IMP_Token.sol";
 import "./IMP_MultiPurposeCrowdsale.sol";
 import "../node_modules/zeppelin-solidity/contracts/math/SafeMath.sol";
 import "../node_modules/zeppelin-solidity/contracts/crowdsale/validation/WhitelistedCrowdsale.sol";
+import "../node_modules/zeppelin-solidity/contracts/lifecycle/Pausable.sol";
 
-contract IMP_Crowdsale is WhitelistedCrowdsale, IMP_MultiPurposeCrowdsale {
+contract IMP_Crowdsale is WhitelistedCrowdsale, Pausable, IMP_MultiPurposeCrowdsale {
 
   IMP_Token internal token;
 
@@ -103,7 +104,7 @@ contract IMP_Crowdsale is WhitelistedCrowdsale, IMP_MultiPurposeCrowdsale {
    * @param _beneficiary Token receiver address
    * @param _tokenAmount Number of tokens to be minted
    */
-  function manualMint(MintPurpose _mintPurpose, address _beneficiary, uint256 _tokenAmount) internal {
+  function manualMint(MintPurpose _mintPurpose, address _beneficiary, uint256 _tokenAmount) internal whenNotPaused  {
     
     require(_tokenAmount > 0, "0 tokens not alowed for minting");
     
@@ -127,7 +128,10 @@ contract IMP_Crowdsale is WhitelistedCrowdsale, IMP_MultiPurposeCrowdsale {
    * @param _beneficiary Address performing the token purchase
    * @param _weiAmount Value in wei involved in the purchase
    */
-  function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
+  function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal whenNotPaused  {
+    
+    require(_weiAmount >= minimumPurchaseWei, "minimum purchase wei not reached");
+    
     pendingTokens = _getTokenAmount(_weiAmount);
     
     MintPurpose mintPurpose = (crowdsaleType == CrowdsaleType.preICO) ? MintPurpose.preICO : MintPurpose.ico;
