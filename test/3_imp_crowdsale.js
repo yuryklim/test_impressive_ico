@@ -383,11 +383,13 @@ contract("IMP_Crowdsale", (accounts) => {
     });
   });
 
-  describe.only("validate token mint limits", () => {
+  describe("validate token mint limits", () => {
     
     const ACC_2 = accounts[2];
     
     it("should validate preICO minting limits", async () => {
+      let maxTokens = new BigNumber(await crowdsale.tokenLimitReserved_preICO.call()).toNumber();
+      console.log(maxTokens);
       //  TODO
     });
     
