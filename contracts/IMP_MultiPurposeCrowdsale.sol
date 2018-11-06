@@ -132,15 +132,15 @@ contract IMP_MultiPurposeCrowdsale is Ownable {
    */
   function validateMintLimits(uint256 _pendingTokens, MintPurpose _mintPurpose) internal view {      
     if(_mintPurpose == MintPurpose.preICO) {
-      require(tokensAvailableToMint_preICO() >= _pendingTokens);
+      require(tokensAvailableToMint_preICO() >= _pendingTokens, "not enough tokens for preICO");
     } else if (_mintPurpose == MintPurpose.ico) {
-      require (tokensAvailableToMint_ico() >= _pendingTokens);
+      require (tokensAvailableToMint_ico() >= _pendingTokens, "not enough tokens for ico");
     } else if (_mintPurpose == MintPurpose.team) {
-      require(tokensAvailableToMint_team() >= _pendingTokens);
+      require(tokensAvailableToMint_team() >= _pendingTokens, "not enough tokens for team");
     }  else if (_mintPurpose == MintPurpose.platform) {
-      require(tokensAvailableToMint_platform() >= _pendingTokens);
+      require(tokensAvailableToMint_platform() >= _pendingTokens, "not enough tokens for platform");
     } else if (_mintPurpose == MintPurpose.airdrops) {
-      require(tokensAvailableToMint_airdrops() >= _pendingTokens);
+      require(tokensAvailableToMint_airdrops() >= _pendingTokens, "not enough tokens for airdrops");
     } else {
       revert();
     }

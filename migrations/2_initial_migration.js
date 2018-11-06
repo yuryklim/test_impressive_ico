@@ -15,7 +15,7 @@ module.exports = (deployer, network, accounts) => {
 
   const CROWDSALE_RATE = 10; // tokens per 1 ETH
   const CROWDSALE_WALLET = accounts[4];
-  const CROWDSALE_TOTAL_SUPPLY_LIMIT = 100000000 * TOKEN_DECIMALS;
+  const CROWDSALE_TOTAL_SUPPLY_LIMIT = 100000000;
 
   const TOKEN_PERCENTAGE_RESERVED_PRE_ICO = 30;
   const TOKEN_PERCENTAGE_RESERVED_ICO = 44;
@@ -25,8 +25,7 @@ module.exports = (deployer, network, accounts) => {
   
   deployer.deploy(IMP_Token, TOKEN_NAME, TOKEN_SYMBOL, TOKEN_DECIMALS).then(async () => {
       let token = await IMP_Token.deployed();
-      let decimals = await token.decimals();
-
+      
         //  constructor(CrowdsaleType _crowdsaleType, uint256 _rate, address _wallet, IMP_Token _token, uint8 _tokenDecimals, uint256 _tokenLimitTotalSupply, uint8[] _tokenPercentageReservations) 
         await deployer.deploy(
           IMP_Crowdsale, 
@@ -34,7 +33,7 @@ module.exports = (deployer, network, accounts) => {
           CROWDSALE_RATE, 
           CROWDSALE_WALLET, 
           token.address, 
-          decimals, 
+          TOKEN_DECIMALS, 
           CROWDSALE_TOTAL_SUPPLY_LIMIT, 
           [TOKEN_PERCENTAGE_RESERVED_PRE_ICO, 
             TOKEN_PERCENTAGE_RESERVED_ICO, 
