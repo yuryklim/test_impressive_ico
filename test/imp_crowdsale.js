@@ -1,18 +1,29 @@
 let IMP_Crowdsale = artifacts.require("IMP_Crowdsale.sol");
+let IMP_Token = artifacts.require("IMP_Token.sol");
+
 const expectThrow = require('./helpers/expectThrow');
 const Reverter = require('./helpers/reverter');
 const BigNumber = require("bignumber.js");
 
 let crowdsale;
+let token;
 
 contract("IMP_Crowdsale", (accounts) => {
 
   const OWNER = accounts[0];
   const ACC_1 = accounts[1];
+  const WALLET = accounts[4];
+
+  const MIN_WEI = 0.00001;
 
   before("setup", async () => {
     crowdsale = await IMP_Crowdsale.deployed();
+    token = await IMP_Token.at(await crowdsale.token.call());
     await Reverter.snapshot();
+  });
+
+  beforeEach("add to whitelist", async () => {
+    await crowdsale.addAddressToWhitelist(ACC_1);
   });
 
   afterEach("revert", async () => {
@@ -60,6 +71,46 @@ contract("IMP_Crowdsale", (accounts) => {
       let tokens_airdrops = totalSupply.dividedBy(100).multipliedBy(percents_airdrops).toNumber();
       
       assert.equal(tokens_airdrops, 20000000000, "wrong percentage for airdrops");
+    });
+  });
+
+  describe("minimum purchase wei value", async () => {
+    const MIN_ETH = 0.00001;
+    const MIN_VALUE = web3.toWei(MIN_ETH, "ether");
+    it("should reject if minimum purchase wei value not reached", async () => {
+      await expectThrow(crowdsale.sendTransaction({
+        from: ACC_1,
+        value: web3.toWei(MIN_ETH / 10, "ether")
+      }), "should revert, because wei value is too low");
+    });
+    it("should pass if purchase wei value is > minimum", async () => {
+      await crowdsale.sendTransaction({
+        from: ACC_1,
+        value: MIN_VALUE
+      });
+    });
+  });
+
+  describe("correct token amount is being calculated during purchase", () => {
+    it("should validate token amount is correct for 1 ETH", async () => {
+      await crowdsale.sendTransaction({
+        from: ACC_1,
+        value: web3.toWei(1, "ether")
+      });
+      let balance = new BigNumber(await token.balanceOf.call(ACC_1)).toNumber();
+      assert.equal(balance, 100000, "wrong balance for 1 ETH");
+    });
+    it("should validate token amount is correct for two transactions 1 ETH + 0.5 ETH", async () => {
+      await crowdsale.sendTransaction({
+        from: ACC_1,
+        value: web3.toWei(1, "ether")
+      });
+      await crowdsale.sendTransaction({
+        from: ACC_1,
+        value: web3.toWei(0.5, "ether")
+      });
+      let balance = new BigNumber(await token.balanceOf.call(ACC_1)).toNumber();
+      assert.equal(balance, 150000, "wrong balance for 2 transactions");
     });
   });
 
