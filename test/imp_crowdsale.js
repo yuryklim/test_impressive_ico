@@ -45,32 +45,53 @@ contract("IMP_Crowdsale", (accounts) => {
       assert.equal(new BigNumber(await crowdsale.tokenPercentageReserved_airdrops.call()).toNumber(), 2, "wrong percentage for airdrops");
     });
 
-    it("shoould validate amounts from percents", async () => {
+    it.only("shoould validate amounts from percents", async () => {
       let totalSupply = new BigNumber(await crowdsale.tokenLimitTotalSupply_crowdsale.call());
+
+      //  1
       let percents_preICO = new BigNumber(await crowdsale.tokenPercentageReserved_preICO.call());
       let tokens_preICO = totalSupply.dividedBy(100).multipliedBy(percents_preICO).toNumber();
 
       assert.equal(tokens_preICO, 300000000000, "wrong percentage for preICO");
 
+      let tokensAvailableToMint_preICO = new BigNumber(await crowdsale.tokensAvailableToMint_preICO.call()).toNumber();
+      assert.equal(tokensAvailableToMint_preICO, tokens_preICO, "wrong tokensAvailableToMint_preICO");
+      
+      //  2
       let percents_ico = new BigNumber(await crowdsale.tokenPercentageReserved_ico.call());
       let tokens_ico = totalSupply.dividedBy(100).multipliedBy(percents_ico).toNumber();
 
       assert.equal(tokens_ico, 440000000000, "wrong percentage for ico");
 
+      let tokensAvailableToMint_ico = new BigNumber(await crowdsale.tokensAvailableToMint_ico.call()).toNumber();
+      assert.equal(tokensAvailableToMint_ico, tokens_ico, "wrong tokensAvailableToMint_ico");
+      
+      //  3
       let percents_team = new BigNumber(await crowdsale.tokenPercentageReserved_team.call());
       let tokens_team = totalSupply.dividedBy(100).multipliedBy(percents_team).toNumber();
 
       assert.equal(tokens_team, 180000000000, "wrong percentage for team");
 
+      let tokensAvailableToMint_team = new BigNumber(await crowdsale.tokensAvailableToMint_team.call()).toNumber();
+      assert.equal(tokensAvailableToMint_team, tokens_team, "wrong tokensAvailableToMint_team");
+      
+      //  4
       let percents_platform = new BigNumber(await crowdsale.tokenPercentageReserved_platform.call());
       let tokens_platform = totalSupply.dividedBy(100).multipliedBy(percents_platform).toNumber();
 
       assert.equal(tokens_platform, 50000000000, "wrong percentage for platform");
 
+      let tokensAvailableToMint_platform = new BigNumber(await crowdsale.tokensAvailableToMint_platform.call()).toNumber();
+      assert.equal(tokensAvailableToMint_platform, tokens_platform, "wrong tokensAvailableToMint_platform");
+      
+      //  5
       let percents_airdrops = new BigNumber(await crowdsale.tokenPercentageReserved_airdrops.call());
       let tokens_airdrops = totalSupply.dividedBy(100).multipliedBy(percents_airdrops).toNumber();
       
       assert.equal(tokens_airdrops, 20000000000, "wrong percentage for airdrops");
+
+      let tokensAvailableToMint_airdrops = new BigNumber(await crowdsale.tokensAvailableToMint_airdrops.call()).toNumber();
+      assert.equal(tokensAvailableToMint_airdrops, tokens_airdrops, "wrong tokensAvailableToMint_airdrops");
     });
   });
 
