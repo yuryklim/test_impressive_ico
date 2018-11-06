@@ -45,7 +45,7 @@ contract("IMP_Crowdsale", (accounts) => {
       assert.equal(new BigNumber(await crowdsale.tokenPercentageReserved_airdrops.call()).toNumber(), 2, "wrong percentage for airdrops");
     });
 
-    it.only("shoould validate amounts from percents", async () => {
+    it("shoould validate amounts from percents", async () => {
       let totalSupply = new BigNumber(await crowdsale.tokenLimitTotalSupply_crowdsale.call());
 
       //  1
@@ -96,14 +96,17 @@ contract("IMP_Crowdsale", (accounts) => {
   });
 
   describe("minimum purchase wei value", async () => {
+
     const MIN_ETH = 0.00001;
     const MIN_VALUE = web3.toWei(MIN_ETH, "ether");
+
     it("should reject if minimum purchase wei value not reached", async () => {
       await expectThrow(crowdsale.sendTransaction({
         from: ACC_1,
         value: web3.toWei(MIN_ETH / 10, "ether")
       }), "should revert, because wei value is too low");
     });
+
     it("should pass if purchase wei value is > minimum", async () => {
       await crowdsale.sendTransaction({
         from: ACC_1,
@@ -136,5 +139,33 @@ contract("IMP_Crowdsale", (accounts) => {
   });
 
   describe("tokensAvailableToMint_ for diff purposes methods", () => {
+    it("should decrease preICO", async () => {
+
+      let tokensAvailableToMint_preICO = new BigNumber(await crowdsale.tokensAvailableToMint_preICO.call());
+  
+      await crowdsale.sendTransaction({
+        from: ACC_1,
+        value: web3.toWei(0.5, "ether")
+      });
+
+      let tokensAvailableToMint_preICO_after = new BigNumber(await crowdsale.tokensAvailableToMint_preICO.call());
+      let diff = tokensAvailableToMint_preICO.minus(tokensAvailableToMint_preICO_after).toNumber();
+      
+      assert.equal(diff, 50000, "wrong decrease value for tokensAvailableToMint_preICO");
+    });
+  });
+
+  describe("diff", () => {
+    it("should validate calculate token function", async () => {
+      //  1
+      let wei = web3.toWei(0.5, "ether");
+      let tokens = new BigNumber(await crowdsale.calculateTokenAmount.call(wei)).toNumber();
+      assert.equal(tokens, 50000, "wrong token amount for 0.5 ETH");
+
+      //  2
+      wei = web3.toWei(1.5, "ether");
+      tokens = new BigNumber(await crowdsale.calculateTokenAmount.call(wei)).toNumber();
+      assert.equal(tokens, 150000, "wrong token amount for 1.5 ETH");
+    });
   });
 }); 

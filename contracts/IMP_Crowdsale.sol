@@ -55,6 +55,17 @@ contract IMP_Crowdsale is WhitelistedCrowdsale, IMP_MultiPurposeCrowdsale {
       rateETH = _rateETH;
   }
 
+   /**
+   * @dev Calculates token amount for provided wei amount.
+   * @param _weiAmount Value in wei to be converted into tokens
+   * @return Number of tokens that can be purchased with the specified _weiAmount
+   */
+  function calculateTokenAmount(uint256 _weiAmount) public view returns (uint256) {
+    require(_weiAmount >= minimumPurchaseWei, "minimum purchase wei not reached");
+    
+    return _getTokenAmount(_weiAmount);
+  }
+
   /**
    * @dev Manually token minting.
    * @param _mintPurpose Purpose of minting
