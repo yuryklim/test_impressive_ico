@@ -9,6 +9,10 @@ contract IMP_Crowdsale is WhitelistedCrowdsale, IMP_MultiPurposeCrowdsale {
 
   IMP_Token internal token;
 
+  //  minimum wei amount for purchase
+  uint256 minimumPurchaseWei;
+  uint256 rateETH;
+
   /**
    * EVENTS
    */
@@ -21,7 +25,8 @@ contract IMP_Crowdsale is WhitelistedCrowdsale, IMP_MultiPurposeCrowdsale {
   /**
    * @dev Constructor function.
    * @param _crowdsaleType                Type of crowdsale
-   * @param _rate                         Token amount per one Eth
+   * @param _minimumPurchaseWei           Minimum wei for purchase
+   * @param _rateETH                      Token amount per one Eth
    * @param _wallet                       Wallet used for crowdsale
    * @param _token                        Token used for crowdsale
    * @param _tokenLimitTotalSupply        Token maximum supply
@@ -34,17 +39,20 @@ contract IMP_Crowdsale is WhitelistedCrowdsale, IMP_MultiPurposeCrowdsale {
    */
   constructor(
     CrowdsaleType _crowdsaleType, 
-    uint256 _rate, 
+    uint256 _minimumPurchaseWei,
+    uint256 _rateETH, 
     address _wallet, 
     IMP_Token _token, 
     uint8 _tokenDecimals, 
     uint256 _tokenLimitTotalSupply, 
     uint8[] _tokenPercentageReservations) 
-    Crowdsale(_rate, _wallet, _token) 
+    Crowdsale(1, _wallet, _token) 
     IMP_MultiPurposeCrowdsale(_tokenLimitTotalSupply, _tokenPercentageReservations, _tokenDecimals) 
     public {      
       crowdsaleType = _crowdsaleType;
       token = IMP_Token(_token);
+      minimumPurchaseWei = _minimumPurchaseWei;
+      rateETH = _rateETH;
   }
 
   /**
@@ -55,8 +63,11 @@ contract IMP_Crowdsale is WhitelistedCrowdsale, IMP_MultiPurposeCrowdsale {
    */
 
   function manualMint(MintPurpose _mintPurpose, address _beneficiary, uint256 _tokenAmount) public onlyOwner {
-    //  preICO and ICO purposes can not be used for manual minting
-    require(_mintPurpose != IMP_MultiPurposeCrowdsale.MintPurpose.preICO && _mintPurpose != IMP_MultiPurposeCrowdsale.MintPurpose.ico);
+    
+    require(
+      _mintPurpose != IMP_MultiPurposeCrowdsale.MintPurpose.preICO 
+      && _mintPurpose != IMP_MultiPurposeCrowdsale.MintPurpose.ico, 
+      "preICO and ICO purposes can not be used for manual minting");
 
     validateMintLimits(_tokenAmount, _mintPurpose);
 
@@ -99,7 +110,7 @@ contract IMP_Crowdsale is WhitelistedCrowdsale, IMP_MultiPurposeCrowdsale {
    * @return Number of tokens that can be purchased with the specified _weiAmount
    */
   function _getTokenAmount(uint256 _weiAmount) internal view returns (uint256) {
-    return _weiAmount.mul(rate);
+    return _weiAmount.mul(rateETH).mul(10**uint256(token.decimals())).div(10**18);
   }
 
   /**

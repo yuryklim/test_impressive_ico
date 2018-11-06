@@ -10,10 +10,12 @@ module.exports = (deployer, network, accounts) => {
   const TOKEN_SYMBOL = "IMP";
   const TOKEN_DECIMALS = 4;
 
+  const MINIMUM_PURCHASE_WEI = web3.toWei(0.00001, "ether"); //  TODO: calculate proper value depending on rate
+
   const CROWDSALE_TYPE_PRE_ICO = 0;
   const CROWDSALE_TYPE_ICO = 1;
 
-  const CROWDSALE_RATE = 10; // tokens per 1 ETH
+  const CROWDSALE_RATE_ETH = 10; // no decimals, TODO: correct values
   const CROWDSALE_WALLET = accounts[4];
   const CROWDSALE_TOTAL_SUPPLY_LIMIT = 100000000;
 
@@ -26,11 +28,12 @@ module.exports = (deployer, network, accounts) => {
   deployer.deploy(IMP_Token, TOKEN_NAME, TOKEN_SYMBOL, TOKEN_DECIMALS).then(async () => {
       let token = await IMP_Token.deployed();
       
-        //  constructor(CrowdsaleType _crowdsaleType, uint256 _rate, address _wallet, IMP_Token _token, uint8 _tokenDecimals, uint256 _tokenLimitTotalSupply, uint8[] _tokenPercentageReservations) 
+        //  constructor(CrowdsaleType _crowdsaleType, uint256 _minimumPurchaseWei, uint256 _rate, address _wallet, IMP_Token _token, uint8 _tokenDecimals, uint256 _tokenLimitTotalSupply, uint8[] _tokenPercentageReservations) 
         await deployer.deploy(
           IMP_Crowdsale, 
-          CROWDSALE_TYPE_PRE_ICO, 
-          CROWDSALE_RATE, 
+          CROWDSALE_TYPE_PRE_ICO,
+          MINIMUM_PURCHASE_WEI,
+          CROWDSALE_RATE_ETH,  
           CROWDSALE_WALLET, 
           token.address, 
           TOKEN_DECIMALS, 
