@@ -18,8 +18,7 @@ contract IMP_CrowdsaleSharedLedger is Ownable {
   enum CrowdsaleType {preICO, ico}
   
   CrowdsaleType public crowdsaleType;
-  // uint256 internal pendingTokens;  //  tokens calculated for current tx
-
+  
   uint8 public tokenPercentageReserved_preICO;    //  % of tokens reserved for pre_ICO
   uint8 public tokenPercentageReserved_ico;       //  % of tokens reserved for ICO
   uint8 public tokenPercentageReserved_team;      //  % of tokens reserved for team
