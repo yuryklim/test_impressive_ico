@@ -71,6 +71,13 @@ contract IMP_CrowdsaleSharedLedger is Ownable {
   }
 
   /**
+   * @dev Add finalization logic.
+   */
+  function finalizeCrowdsale() public onlyOwner {
+    calculateICOLimits();
+  }
+
+  /**
    * PRIVATE
    */
 
