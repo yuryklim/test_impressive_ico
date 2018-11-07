@@ -64,9 +64,9 @@ contract IMP_CrowdsaleSharedLedger is Ownable {
       purchase = tokenLimitReserved_ico;
     }
 
-    team = tokenLimitReserved_team;
-    platform = tokenLimitReserved_platform;
-    airdrops = tokenLimitReserved_airdrops;
+    team = tokenLimitReserved_team.sub(tokensMinted_team);
+    platform = tokenLimitReserved_platform.sub(tokensMinted_platform);
+    airdrops = tokenLimitReserved_airdrops.sub(tokensMinted_airdrops);
   }
 
   /**
@@ -103,7 +103,14 @@ contract IMP_CrowdsaleSharedLedger is Ownable {
     tokenLimitReserved_airdrops = tokenLimitTotalSupply_crowdsale.mul(tokenPercentageReserved_airdrops).div(100);
   }
 
+  /**
+  * @dev Add unspent preICO tokens to ICO reserved tokens
+  */
   function calculateICOLimits() private {
-    //  TODO
+
+    crowdsaleType = CrowdsaleType.ico;
+    
+    uint256 tokensUnspent_preICO = tokenLimitReserved_preICO.sub(tokensMinted_preICO);
+    tokenLimitReserved_ico = tokenLimitReserved_ico.add(tokensUnspent_preICO);
   }
 }
