@@ -6,14 +6,15 @@ import "../node_modules/zeppelin-solidity/contracts/math/SafeMath.sol";
 import "../node_modules/zeppelin-solidity/contracts/crowdsale/validation/WhitelistedCrowdsale.sol";
 import "../node_modules/zeppelin-solidity/contracts/lifecycle/Pausable.sol";
 import "../node_modules/zeppelin-solidity/contracts/crowdsale/validation/TimedCrowdsale.sol";
+import "./IMP_DiscountCrowdsale.sol";
 
-contract IMP_Crowdsale is WhitelistedCrowdsale, Pausable, TimedCrowdsale, IMP_MultiPurposeCrowdsale {
+contract IMP_Crowdsale is WhitelistedCrowdsale, Pausable, TimedCrowdsale, IMP_MultiPurposeCrowdsale, IMP_DiscountCrowdsale  {
 
   IMP_Token internal token;
 
   //  minimum wei amount for purchase
-  uint256 minimumPurchaseWei;
-  uint256 rateETH;
+  uint256 public minimumPurchaseWei = 10000000000000; //  web3.toWei(0.00001, "ether")
+  uint256 public rateETH = 10; // no decimals, TODO: correct values
 
   /**
    * EVENTS
@@ -27,8 +28,9 @@ contract IMP_Crowdsale is WhitelistedCrowdsale, Pausable, TimedCrowdsale, IMP_Mu
   /**
    * @dev Constructor function.
    * @param _crowdsaleType                Type of crowdsale
-   * @param _minimumPurchaseWei           Minimum wei for purchase
-   * @param _rateETH                      Token amount per one Eth
+   * @param _timings                      Crowdsale timings:
+   * 0 - openingTimestamp
+   * 1 - closingTimestamp
    * @param _wallet                       Wallet used for crowdsale
    * @param _token                        Token used for crowdsale
    * @param _tokenLimitTotalSupply        Token maximum supply
@@ -38,26 +40,23 @@ contract IMP_Crowdsale is WhitelistedCrowdsale, Pausable, TimedCrowdsale, IMP_Mu
    * 2 - team members
    * 3 - platform beginning period
    * 4 - airdrops and bounties
+   * @param _discounts                    Discounts for Crowdsale. Decreasing from max to min
    */
   constructor(
     CrowdsaleType _crowdsaleType, 
-    uint256 _openingTime, 
-    uint256 _closingTime,
-    uint256 _minimumPurchaseWei,
-    uint256 _rateETH, 
+    uint256[] _timings, 
     address _wallet, 
     IMP_Token _token, 
-    uint8 _tokenDecimals, 
     uint256 _tokenLimitTotalSupply, 
-    uint8[] _tokenPercentageReservations) 
-    Crowdsale(1, _wallet, _token) 
-    TimedCrowdsale(_openingTime, _closingTime)
-    IMP_MultiPurposeCrowdsale(_tokenLimitTotalSupply, _tokenPercentageReservations, _tokenDecimals) 
+    uint8[] _tokenPercentageReservations, 
+    uint256[] _discounts) 
+    Crowdsale(1, _wallet, _token)
+    TimedCrowdsale(_timings[0], _timings[1]) 
+    IMP_MultiPurposeCrowdsale(_token, _tokenLimitTotalSupply, _tokenPercentageReservations) 
+    IMP_DiscountCrowdsale(_timings[0], _timings[1], _discounts[0], _discounts[1])
     public {      
       crowdsaleType = _crowdsaleType;
       token = IMP_Token(_token);
-      minimumPurchaseWei = _minimumPurchaseWei;
-      rateETH = _rateETH;
   }
 
    /**

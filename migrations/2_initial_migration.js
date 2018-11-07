@@ -14,41 +14,38 @@ module.exports = (deployer, network, accounts) => {
   const MINIMUM_PURCHASE_WEI = web3.toWei(0.00001, "ether"); //  TODO: calculate proper value depending on rate
 
   const CROWDSALE_TYPE_PRE_ICO = 0;
-  const CROWDSALE_TYPE_ICO = 1;
-
-  const CROWDSALE_RATE_ETH = 10; // no decimals, TODO: correct values
+  
   const CROWDSALE_WALLET = accounts[4];
   const CROWDSALE_TOTAL_SUPPLY_LIMIT = 100000000;
 
-  const CROWDSALE_OPENING = web3.eth.getBlock("latest").timestamp;
-  const CROWDSALE_CLOSING = CROWDSALE_OPENING + IncreaseTime.duration.days(1);
-
+  const CROWDSALE_OPENING = web3.eth.getBlock("latest").timestamp + IncreaseTime.duration.minutes(1);
+  const CROWDSALE_CLOSING = CROWDSALE_OPENING + IncreaseTime.duration.weeks(6);
+  
   const TOKEN_PERCENTAGE_RESERVED_PRE_ICO = 30;
   const TOKEN_PERCENTAGE_RESERVED_ICO = 44;
   const TOKEN_PERCENTAGE_RESERVED_TEAM = 18;
   const TOKEN_PERCENTAGE_RESERVED_PLATFORM = 5;
   const TOKEN_PERCENTAGE_RESERVED_AIRDROPS = 2;
+
+  const PRE_ICO_DISCOUNTS = [20, 10]; //  including each edge
+  const ICO_DISCOUNTS = [10, 0]; //  including each edge
   
   deployer.deploy(IMP_Token, TOKEN_NAME, TOKEN_SYMBOL, TOKEN_DECIMALS).then(async () => {
       let token = await IMP_Token.deployed();
       
-        //  constructor(CrowdsaleType _crowdsaleType, uint256 _minimumPurchaseWei, uint256 _rate, address _wallet, IMP_Token _token, uint8 _tokenDecimals, uint256 _tokenLimitTotalSupply, uint8[] _tokenPercentageReservations) 
-        await deployer.deploy(
-          IMP_Crowdsale, 
-          CROWDSALE_TYPE_PRE_ICO,
-          CROWDSALE_OPENING, 
-          CROWDSALE_CLOSING,
-          MINIMUM_PURCHASE_WEI,
-          CROWDSALE_RATE_ETH,  
-          CROWDSALE_WALLET, 
-          token.address, 
-          TOKEN_DECIMALS, 
-          CROWDSALE_TOTAL_SUPPLY_LIMIT, 
-          [TOKEN_PERCENTAGE_RESERVED_PRE_ICO, 
-            TOKEN_PERCENTAGE_RESERVED_ICO, 
-            TOKEN_PERCENTAGE_RESERVED_TEAM, 
-            TOKEN_PERCENTAGE_RESERVED_PLATFORM, 
-            TOKEN_PERCENTAGE_RESERVED_AIRDROPS]);
+      await deployer.deploy(
+        IMP_Crowdsale, 
+        CROWDSALE_TYPE_PRE_ICO, 
+        [CROWDSALE_OPENING, CROWDSALE_CLOSING], 
+        CROWDSALE_WALLET, 
+        token.address, 
+        CROWDSALE_TOTAL_SUPPLY_LIMIT, 
+        [TOKEN_PERCENTAGE_RESERVED_PRE_ICO, 
+          TOKEN_PERCENTAGE_RESERVED_ICO, 
+          TOKEN_PERCENTAGE_RESERVED_TEAM, 
+          TOKEN_PERCENTAGE_RESERVED_PLATFORM, 
+          TOKEN_PERCENTAGE_RESERVED_AIRDROPS], 
+          PRE_ICO_DISCOUNTS);
 
       let crowdsale = await IMP_Crowdsale.deployed();
 
