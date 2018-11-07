@@ -2,7 +2,7 @@ let mock = {
     minimumPurchaseWei: web3.toWei(0.00001, "ether"),
     crowdsaleTypePreICO: 0,
     crowdsaleTypeICO: 1,
-    crowdsaleRateEth: 10,
+    crowdsaleRateEth: 200,
     crowdsaleWallet: 000000,
     crowdsaleTotalSupplyLimit: 100000000,
     // crowdsaleOpening: web3.eth.getBlock("latest").timestamp,

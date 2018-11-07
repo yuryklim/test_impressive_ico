@@ -13,7 +13,7 @@ contract IMP_TokenNumbersManagedCrowdsale is Ownable {
 
   //  minimum wei amount for purchase
   uint256 public minimumPurchaseWei = 10000000000000; //  web3.toWei(0.00001, "ether")
-  uint256 public rateETH = 10; //tokens per ETH, no decimals, TODO: correct values
+  uint256 public rateETH; //tokens per ETH, no decimals, TODO: correct values
 
 
   uint256 public tokenLimitReserved_purchase;     //  tokens reserved for purchase
@@ -34,10 +34,10 @@ contract IMP_TokenNumbersManagedCrowdsale is Ownable {
    */
 
   
-  constructor(address _crowdsaleSharedLedger) public {
-        crowdsaleSharedLedger  = IMP_CrowdsaleSharedLedger(_crowdsaleSharedLedger);
-
-        getTokenReservedLimits();
+  constructor(address _crowdsaleSharedLedger, uint256 _rateETH) public {
+    rateETH = _rateETH;
+    crowdsaleSharedLedger  = IMP_CrowdsaleSharedLedger(_crowdsaleSharedLedger);
+    getTokenReservedLimits();
   }
 
   function currentCrowdsaleType() public view returns(IMP_CrowdsaleSharedLedger.CrowdsaleType) {
