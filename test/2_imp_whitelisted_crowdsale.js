@@ -1,5 +1,7 @@
 let IMP_Crowdsale = artifacts.require("./IMP_Crowdsale");
 
+const IncreaseTime = require("./helpers/increaseTime.js");
+
 const expectThrow = require('./helpers/expectThrow');
 const Reverter = require('./helpers/reverter');
 
@@ -12,6 +14,9 @@ contract('imp_whitelisted_crowdsale', (accounts) => {
 
   before("setup", async () => {
     crowdsale = await IMP_Crowdsale.deployed();
+
+    IncreaseTime.increaseTimeWith(IncreaseTime.duration.minutes(1));
+    
     await Reverter.snapshot();
   });
 
