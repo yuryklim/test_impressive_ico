@@ -149,7 +149,7 @@ contract("IMP_Crowdsale", (accounts) => {
 
       let balance = new BigNumber(await token.balanceOf.call(ACC_1)).toNumber();
       
-      assert.equal(balance, 100000, "wrong balance for 1 ETH");
+      assert.equal(balance, 2000000, "wrong balance for 1 ETH");
     });
 
     it("should validate token amount is correct for two transactions 1 ETH + 0.5 ETH", async () => {
@@ -164,7 +164,7 @@ contract("IMP_Crowdsale", (accounts) => {
       });
 
       let balance = new BigNumber(await token.balanceOf.call(ACC_1)).toNumber();
-      assert.equal(balance, 150000, "wrong balance for 2 transactions");
+      assert.equal(balance, 3000000, "wrong balance for 2 transactions");
     });
   });
 
@@ -182,7 +182,7 @@ contract("IMP_Crowdsale", (accounts) => {
             let tokensAvailableToMint_purchase_after = new BigNumber(await crowdsale.tokensAvailableToMint_purchase.call());
             let diff = tokensAvailableToMint_purchase.minus(tokensAvailableToMint_purchase_after).toNumber();
 
-            assert.equal(diff, 50000, "wrong decrease value for tokensAvailableToMint_preICO");
+            assert.equal(diff, 1000000, "wrong decrease value for tokensAvailableToMint_preICO");
 
             await crowdsale.tokensAvailableToMint_purchase.call({
                 from: ACC_1
@@ -245,12 +245,12 @@ contract("IMP_Crowdsale", (accounts) => {
             //  1
             let wei = web3.toWei(0.5, "ether");
             let tokens = new BigNumber(await crowdsale.calculateTokenAmount.call(wei)).toNumber();
-            assert.equal(tokens, 50000, "wrong token amount for 0.5 ETH");
+            assert.equal(tokens, 1000000, "wrong token amount for 0.5 ETH");
 
             //  2
             wei = web3.toWei(1.5, "ether");
             tokens = new BigNumber(await crowdsale.calculateTokenAmount.call(wei)).toNumber();
-            assert.equal(tokens, 150000, "wrong token amount for 1.5 ETH");
+            assert.equal(tokens, 3000000, "wrong token amount for 1.5 ETH");
         });
     });
 
@@ -315,7 +315,7 @@ contract("IMP_Crowdsale", (accounts) => {
             let tokensMinted_purchase_after = new BigNumber(await crowdsale.tokensMinted_purchase.call());
 
             let diff = tokensMinted_purchase_after.minus(tokensMinted_purchase).toNumber();
-            assert.equal(diff, 100000, "wrong tokensMinted_preICO");
+            assert.equal(diff, 2000000, "wrong tokensMinted_preICO");
         });
 
         it("should validate ico updating", async () => {

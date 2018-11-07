@@ -44,7 +44,8 @@ contract('TimedCrowdsale - new instance', (accounts) => {
       tokenLocal.address, 
       crowdsaleSharedLedger.address, 
       CROWDSALE_WALLET, 
-      [CROWDSALE_OPENING, CROWDSALE_CLOSING]);
+      [CROWDSALE_OPENING, CROWDSALE_CLOSING], 
+      mockCrowdsale.crowdsaleRateEth);
 
     await tokenLocal.transferOwnership(crowdsaleLocal.address);
 
@@ -80,7 +81,7 @@ contract('TimedCrowdsale - new instance', (accounts) => {
   describe("after Crowdsale finishes", () => {
     it('should be false for hasOpened', async () => {
       
-      let closeTime = new BigNumber(await crowdsaleLocal.closingTime.call()).plus(111);
+      let closeTime = new BigNumber(await crowdsaleLocal.closingTime.call()).plus(IncreaseTime.duration.seconds(1));
       
       await IncreaseTime.increaseTimeTo(closeTime);
       
@@ -91,7 +92,7 @@ contract('TimedCrowdsale - new instance', (accounts) => {
       
       await crowdsaleLocal.addAddressToWhitelist(ACC_1);
       
-      let closeTime = new BigNumber(await crowdsaleLocal.closingTime.call()).plus(111);
+      let closeTime = new BigNumber(await crowdsaleLocal.closingTime.call()).plus(IncreaseTime.duration.seconds(1));
       
       await IncreaseTime.increaseTimeTo(closeTime);
       
