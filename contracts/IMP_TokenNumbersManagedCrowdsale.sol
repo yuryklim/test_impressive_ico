@@ -13,18 +13,14 @@ contract IMP_TokenNumbersManagedCrowdsale is Ownable {
 
   //  minimum wei amount for purchase
   uint256 public minimumPurchaseWei = 10000000000000; //  web3.toWei(0.00001, "ether")
-  uint256 public rateETH = 10; // no decimals, TODO: correct values
+  uint256 public rateETH = 10; //tokens per ETH, no decimals, TODO: correct values
 
 
-  uint256 public tokenLimitReserved_preICO;       //  tokens reserved for pre_ICO
-  uint256 public tokenLimitReserved_ico;          //  tokens reserved for ICO
   uint256 public tokenLimitReserved_purchase;     //  tokens reserved for purchase
   uint256 public tokenLimitReserved_team;         //  tokens reserved for team
   uint256 public tokenLimitReserved_platform;     //  tokens reserved for platform 
   uint256 public tokenLimitReserved_airdrops;     //  tokens reserved for airdrops
 
-  uint256 public tokensMinted_preICO;       //  tokens minted for pre_ICO
-  uint256 public tokensMinted_ico;          //  tokens minted for ICO
   uint256 public tokensMinted_purchase;     //  tokens minted for purchase
   uint256 public tokensMinted_team;         //  tokens minted for team
   uint256 public tokensMinted_platform;     //  tokens minted for platform 
@@ -45,19 +41,11 @@ contract IMP_TokenNumbersManagedCrowdsale is Ownable {
   }
 
   /**
-   * @dev Calculate available amount of tokens to mint during preICO.
-   * @return Number of tokens that can be minted during preICO
+   * @dev Calculate available amount of tokens to mint during purchase.
+   * @return Number of tokens that can be minted during purchase
    */
-  function tokensAvailableToMint_preICO() public view returns(uint256) {
-    return tokenLimitReserved_preICO.sub(tokensMinted_preICO);
-  }
-
-  /**
-   * @dev Calculate available amount of tokens to mint during ICO.
-   * @return Number of tokens that can be minted during ICO
-   */
-  function tokensAvailableToMint_ico() public view returns(uint256) {
-    return tokenLimitReserved_ico.sub(tokensMinted_ico);
+  function tokensAvailableToMint_purchase() public view returns(uint256) {
+    return tokenLimitReserved_purchase.sub(tokensMinted_purchase);
   }
 
   /**
@@ -111,18 +99,14 @@ contract IMP_TokenNumbersManagedCrowdsale is Ownable {
    * @param _mintPurpose Purpose of minting
    */
   function validateMintLimits(uint256 _pendingTokens, MintPurpose _mintPurpose) internal view {      
-    if(_mintPurpose == MintPurpose.preICO) {
-      require(tokensAvailableToMint_preICO() >= _pendingTokens, "not enough tokens for preICO");
-    } else if (_mintPurpose == MintPurpose.ico) {
-      require (tokensAvailableToMint_ico() >= _pendingTokens, "not enough tokens for ico");
-    } else if (_mintPurpose == MintPurpose.team) {
+    if (_mintPurpose == MintPurpose.team) {
       require(tokensAvailableToMint_team() >= _pendingTokens, "not enough tokens for team");
     }  else if (_mintPurpose == MintPurpose.platform) {
       require(tokensAvailableToMint_platform() >= _pendingTokens, "not enough tokens for platform");
     } else if (_mintPurpose == MintPurpose.airdrops) {
       require(tokensAvailableToMint_airdrops() >= _pendingTokens, "not enough tokens for airdrops");
     } else {
-      revert();
+      require(tokensAvailableToMint_purchase() >= _pendingTokens, "not enough tokens for tokensAvailableToMint_purchase");
     }
   }
 
@@ -132,16 +116,14 @@ contract IMP_TokenNumbersManagedCrowdsale is Ownable {
    * @param _tokenAmount Number of tokens were minted
    */
   function updateMintedTokenNumbers(MintPurpose _mintPurpose, uint256 _tokenAmount) internal {
-    if (_mintPurpose == MintPurpose.preICO) {
-      tokensMinted_preICO = tokensMinted_preICO.add(_tokenAmount);
-    } else if (_mintPurpose == MintPurpose.ico) {
-      tokensMinted_ico = tokensMinted_ico.add(_tokenAmount);
-    } else if (_mintPurpose == MintPurpose.team) {
+     if (_mintPurpose == MintPurpose.team) {
       tokensMinted_team = tokensMinted_team.add(_tokenAmount);
     } else if (_mintPurpose == MintPurpose.platform) {
       tokensMinted_platform = tokensMinted_platform.add(_tokenAmount);
     } else if (_mintPurpose == MintPurpose.airdrops) {
       tokensMinted_airdrops = tokensMinted_airdrops.add(_tokenAmount);
+    } else {
+      tokensMinted_purchase = tokensMinted_purchase.add(_tokenAmount);
     }
   }
 
