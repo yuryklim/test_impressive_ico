@@ -85,7 +85,7 @@ contract("IMP_Crowdsale - test finalization", (accounts) => {
     await Reverter.revert();
   });
 
-  describe.only("validate finalize function", () => {
+  describe("validate finalize function", () => {
     it("should validate limits are being recalculated after finalization", async () => {
       await crowdsaleLocal.addAddressesToWhitelist([ACC_1, ACC_2]);
 
@@ -149,6 +149,58 @@ contract("IMP_Crowdsale - test finalization", (accounts) => {
       assert.equal(unspentTeamUpdated.toNumber(), unspentTeam.toNumber(), "wrong token purchase limit for team");
       assert.equal(unspentPlatformUpdated.toNumber(), unspentPlatform.toNumber(), "wrong token purchase limit for platform");
       assert.equal(unspentAirdropsUpdated.toNumber(), unspentAirdrops.toNumber(), "wrong token purchase limit for airdrops");
+    });
+  });
+}); 
+contract("IMP_Crowdsale - ICO minting limits", (accounts) => {
+  const ACC_1 = accounts[1];
+  const ACC_2 = accounts[2];
+  let tokenLocal;
+  let crowdsaleSharedLedgerLocal;
+  let crowdsaleLocal;
+  before('setup', async () => {
+    const CROWDSALE_WALLET = accounts[4];
+    const CROWDSALE_OPENING = web3.eth.getBlock('latest').timestamp + IncreaseTime.duration.minutes(3);
+    const CROWDSALE_CLOSING = CROWDSALE_OPENING + IncreaseTime.duration.days(1);
+    let mockToken = MockToken.getMock();
+    let mockCrowdsale = MockCrowdsale.getMock();
+    tokenLocal = await IMP_Token.new(mockToken.tokenName, mockToken.tokenSymbol, mockToken.tokenDecimals);
+    crowdsaleSharedLedgerLocal = await IMP_CrowdsaleSharedLedger.new(tokenLocal.address, mockCrowdsale.crowdsaleTotalSupplyLimit, [mockCrowdsale.tokenPercentageReservedPreICO, mockCrowdsale.tokenPercentageReservedICO, mockCrowdsale.tokenPercentageReservedTeam, mockCrowdsale.tokenPercentageReservedPlatform, mockCrowdsale.tokenPercentageReservedAirdrops]);
+    crowdsaleLocal = await IMP_Crowdsale.new(tokenLocal.address, crowdsaleSharedLedgerLocal.address, CROWDSALE_WALLET, [CROWDSALE_OPENING, CROWDSALE_CLOSING], mockCrowdsale.crowdsaleRateEth);
+    await crowdsaleSharedLedgerLocal.transferOwnership(crowdsaleLocal.address);
+    await tokenLocal.transferOwnership(crowdsaleLocal.address);
+    IncreaseTime.increaseTimeTo(CROWDSALE_CLOSING + IncreaseTime.duration.seconds(1));
+    await Reverter.snapshot();
+  });
+  afterEach('revert', async () => {
+    await Reverter.revert();
+  });
+  describe.only("validate correct calculations while ICO minting", () => {
+    it("should decrease ICO", async () => {
+      //  finalize preICO and move to ICO period
+      await crowdsaleLocal.finalize();
+      //  new contract for ICO
+      const CROWDSALE_WALLET = accounts[4];
+      const CROWDSALE_OPENING = web3.eth.getBlock('latest').timestamp + IncreaseTime.duration.minutes(3);
+      const CROWDSALE_CLOSING = CROWDSALE_OPENING + IncreaseTime.duration.days(1);
+      let mockCrowdsale = MockCrowdsale.getMock();
+      crowdsaleLocal = await IMP_Crowdsale.new(tokenLocal.address, crowdsaleSharedLedgerLocal.address, CROWDSALE_WALLET, [CROWDSALE_OPENING, CROWDSALE_CLOSING], mockCrowdsale.crowdsaleRateEth);
+      await crowdsaleSharedLedgerLocal.transferOwnership(crowdsaleLocal.address);
+      await tokenLocal.transferOwnership(crowdsaleLocal.address);
+      IncreaseTime.increaseTimeTo(CROWDSALE_OPENING);
+      await crowdsaleLocal.addAddressesToWhitelist([ACC_1, ACC_2]);
+      let tokensAvailableToMint_purchase = new BigNumber(await crowdsaleLocal.tokensAvailableToMint_purchase.call());
+      let tokensMinted_purchase = new BigNumber(await crowdsaleLocal.tokensMinted_purchase.call());
+      await crowdsaleLocal.sendTransaction({
+        from: ACC_1,
+        value: web3.toWei(0.5, "ether")
+      });
+      let tokensAvailableToMint_purchase_after = new BigNumber(await crowdsaleLocal.tokensAvailableToMint_purchase.call());
+      let tokensMinted_purchase_after = new BigNumber(await crowdsaleLocal.tokensMinted_purchase.call());
+      let tokensAvailableToMint_purchase_diff = tokensAvailableToMint_purchase.minus(tokensAvailableToMint_purchase_after).toNumber();
+      let tokensMinted_purchase_diff = tokensMinted_purchase_after.minus(tokensMinted_purchase).toNumber();
+      assert.equal(tokensAvailableToMint_purchase_diff, 1000000, "wrong decrease value for tokensAvailableToMint_ICO");
+      assert.equal(tokensMinted_purchase_diff, tokensAvailableToMint_purchase_diff, "tokensAvailableToMint_purchase_diff should be equal to tokensMinted_purchase_diff");
     });
   });
 }); 
