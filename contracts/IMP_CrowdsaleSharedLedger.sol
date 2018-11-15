@@ -70,10 +70,16 @@ contract IMP_CrowdsaleSharedLedger is Ownable {
   }
 
   /**
-   * @dev Add finalization logic.
+   * @dev Calculates ICO limits and update crowdsale type to ICO.
    */
-  function finalizeCrowdsale() public onlyOwner {
+    function finalizeCrowdsale(uint256 _tokensMinted_preICO, uint256 _tokensMinted_team, uint256 _tokensMinted_platform, uint256 _tokensMinted_airdrops) public onlyOwner {
+    tokensMinted_preICO = _tokensMinted_preICO;
+    tokensMinted_team = _tokensMinted_team;
+    tokensMinted_platform = _tokensMinted_platform;
+    tokensMinted_airdrops = _tokensMinted_airdrops;
+    
     calculateICOLimits();
+    crowdsaleType = CrowdsaleType.ico;
   }
 
   /**
@@ -106,10 +112,7 @@ contract IMP_CrowdsaleSharedLedger is Ownable {
   /**
   * @dev Add unspent preICO tokens to ICO reserved tokens
   */
-  function calculateICOLimits() private {
-
-    crowdsaleType = CrowdsaleType.ico;
-    
+   function calculateICOLimits() private {    
     uint256 tokensUnspent_preICO = tokenLimitReserved_preICO.sub(tokensMinted_preICO);
     tokenLimitReserved_ico = tokenLimitReserved_ico.add(tokensUnspent_preICO);
   }

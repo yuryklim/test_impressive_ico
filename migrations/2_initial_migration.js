@@ -56,5 +56,7 @@ module.exports = (deployer, network, accounts) => {
 
       await token.transferOwnership(crowdsale.address);
 
+      await sharedLedger.transferOwnership(crowdsale.address);
+
   });
 }

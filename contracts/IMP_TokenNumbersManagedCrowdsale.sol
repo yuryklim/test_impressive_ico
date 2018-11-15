@@ -11,6 +11,8 @@ contract IMP_TokenNumbersManagedCrowdsale is Ownable {
 
   enum MintPurpose {preICO, ico, team, platform, airdrops} // Supplier.State.inactive
 
+  IMP_Token public token;
+
   //  minimum wei amount for purchase
   uint256 public minimumPurchaseWei = 10000000000000; //  web3.toWei(0.00001, "ether")
   uint256 public rateETH; //tokens per ETH, no decimals, TODO: correct values
@@ -84,7 +86,9 @@ contract IMP_TokenNumbersManagedCrowdsale is Ownable {
    * @dev Add finalization logic.
    */
   function finalizeCrowdsale() internal onlyOwner {
-     crowdsaleSharedLedger.finalizeCrowdsale();
+    crowdsaleSharedLedger.finalizeCrowdsale(tokensMinted_purchase, tokensMinted_team, tokensMinted_platform, tokensMinted_airdrops);
+    crowdsaleSharedLedger.transferOwnership(owner);
+    token.transferOwnership(owner);
   }
 
 

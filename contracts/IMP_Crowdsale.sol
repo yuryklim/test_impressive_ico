@@ -9,9 +9,7 @@ import "../node_modules/zeppelin-solidity/contracts/crowdsale/distribution/Final
 
 contract IMP_Crowdsale is WhitelistedCrowdsale, Pausable, FinalizableCrowdsale, IMP_TokenNumbersManagedCrowdsale {
 
-  IMP_Token internal token;
-
-  uint256 pendingTokens;  //  tokens calculated for current tx
+  uint256 private pendingTokens;  //  tokens calculated for current tx
 
   /**
    * EVENTS
@@ -164,9 +162,10 @@ contract IMP_Crowdsale is WhitelistedCrowdsale, Pausable, FinalizableCrowdsale, 
    * executed entirely.
    */
   function finalization() internal {
-    finalizeCrowdsale();
     
     super.finalization();
+    finalizeCrowdsale();
+    selfdestruct(owner);
   }
 
   /**
