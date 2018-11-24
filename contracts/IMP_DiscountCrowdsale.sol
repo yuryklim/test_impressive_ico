@@ -46,6 +46,7 @@ contract IMP_DiscountCrowdsale is Ownable {
     for(uint i = 0; i < stageEdges.length; i ++) {
       if(now <= stageEdges[i]) {
         discount = stageDiscounts[i];
+        return discount;
       }
     }
   }

@@ -1,12 +1,10 @@
 let mock = {
     minimumPurchaseWei: web3.toWei(0.00001, "ether"),
-    crowdsaleTypePreICO: 0,
-    crowdsaleTypeICO: 1,
-    crowdsaleRateEth: 200,
+    crowdsaleRateEth: 100, // tokens per ETH, no decimals, TODO: correct values
     crowdsaleWallet: 000000,
-    crowdsaleTotalSupplyLimit: 100000000,
-    // crowdsaleOpening: web3.eth.getBlock("latest").timestamp,
-    // crowdsaleClosing: web3.eth.getBlock("latest").timestamp + 10,    //  not calculated
+    crowdsaleTotalSupplyLimit: 100000000, //  no decimals
+    crowdsalePreICODiscounts: [20, 18, 16, 14, 12, 10], //  including each edge
+    crowdsaleICODiscounts: [10, 9, 8, 7, 6, 5, 4, 3], //  including each edge
     tokenPercentageReservedPreICO: 30,
     tokenPercentageReservedICO: 44,
     tokenPercentageReservedTeam: 18,
