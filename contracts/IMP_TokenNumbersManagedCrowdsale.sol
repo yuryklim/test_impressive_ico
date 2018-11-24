@@ -34,7 +34,11 @@ contract IMP_TokenNumbersManagedCrowdsale is Ownable {
   /**
    * EVENTS
    */
-
+  event FinalizedWithResults(
+    uint256 _tokensMinted_purchase, 
+    uint256 _tokensMinted_team, 
+    uint256 _tokensMinted_platform, 
+    uint256 _tokensMinted_airdrops);
   
   constructor(address _crowdsaleSharedLedger, uint256 _rateETH) public {
     rateETH = _rateETH;
@@ -89,6 +93,11 @@ contract IMP_TokenNumbersManagedCrowdsale is Ownable {
     crowdsaleSharedLedger.finalizeCrowdsale(tokensMinted_purchase, tokensMinted_team, tokensMinted_platform, tokensMinted_airdrops);
     crowdsaleSharedLedger.transferOwnership(owner);
     token.transferOwnership(owner);
+    emit FinalizedWithResults(
+      tokensMinted_purchase, 
+      tokensMinted_team, 
+      tokensMinted_platform, 
+      tokensMinted_airdrops);
   }
 
 

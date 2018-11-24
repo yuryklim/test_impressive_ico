@@ -92,7 +92,7 @@ contract('TimedCrowdsale - new instance', (accounts) => {
       
       await crowdsaleLocal.addAddressToWhitelist(ACC_1);
       
-      let closeTime = new BigNumber(await crowdsaleLocal.closingTime.call()).plus(IncreaseTime.duration.seconds(1));
+      let closeTime = new BigNumber(await crowdsaleLocal.closingTime.call()).plus(IncreaseTime.duration.seconds(2));
       
       await IncreaseTime.increaseTimeTo(closeTime);
       

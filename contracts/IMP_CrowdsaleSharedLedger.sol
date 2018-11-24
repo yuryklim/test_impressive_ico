@@ -71,15 +71,26 @@ contract IMP_CrowdsaleSharedLedger is Ownable {
 
   /**
    * @dev Calculates ICO limits and update crowdsale type to ICO.
+   * @param _tokensMinted_purchase    Tokens minted during preICO / ICO
+   * @param _tokensMinted_team        Tokens minted for team
+   * @param _tokensMinted_platform    Tokens minted for platform needs
+   * @param _tokensMinted_airdrops    Tokens minted for airdrops
    */
-    function finalizeCrowdsale(uint256 _tokensMinted_preICO, uint256 _tokensMinted_team, uint256 _tokensMinted_platform, uint256 _tokensMinted_airdrops) public onlyOwner {
-    tokensMinted_preICO = _tokensMinted_preICO;
-    tokensMinted_team = _tokensMinted_team;
-    tokensMinted_platform = _tokensMinted_platform;
-    tokensMinted_airdrops = _tokensMinted_airdrops;
-    
-    calculateICOLimits();
-    crowdsaleType = CrowdsaleType.ico;
+    function finalizeCrowdsale(
+     uint256 _tokensMinted_purchase, 
+     uint256 _tokensMinted_team, 
+     uint256 _tokensMinted_platform, 
+     uint256 _tokensMinted_airdrops) public onlyOwner {
+    if(crowdsaleType == CrowdsaleType.preICO) {
+      finalizePreICO(
+        _tokensMinted_purchase, 
+        _tokensMinted_team, 
+        _tokensMinted_platform, 
+        _tokensMinted_airdrops);
+      crowdsaleType = CrowdsaleType.ico;
+    } else {
+      finalizeICO();
+    }
   }
 
   /**
@@ -115,5 +126,24 @@ contract IMP_CrowdsaleSharedLedger is Ownable {
    function calculateICOLimits() private {    
     uint256 tokensUnspent_preICO = tokenLimitReserved_preICO.sub(tokensMinted_preICO);
     tokenLimitReserved_ico = tokenLimitReserved_ico.add(tokensUnspent_preICO);
+  }
+
+  /**
+  * @dev preICO finalization logic
+  */
+  function finalizePreICO(uint256 _tokensMinted_preICO, uint256 _tokensMinted_team, uint256 _tokensMinted_platform, uint256 _tokensMinted_airdrops) private {
+    tokensMinted_preICO = _tokensMinted_preICO;
+    tokensMinted_team = _tokensMinted_team;
+    tokensMinted_platform = _tokensMinted_platform;
+    tokensMinted_airdrops = _tokensMinted_airdrops;
+    
+    calculateICOLimits();
+  }
+
+  /**
+  * @dev ICO finalization logic
+  */
+  function finalizeICO() private {
+    selfdestruct(owner);
   }
 }
