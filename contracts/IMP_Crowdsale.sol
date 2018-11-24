@@ -7,7 +7,7 @@ import "../node_modules/zeppelin-solidity/contracts/lifecycle/Pausable.sol";
 import "../node_modules/zeppelin-solidity/contracts/crowdsale/distribution/FinalizableCrowdsale.sol";
 
 
-contract IMP_Crowdsale is WhitelistedCrowdsale, Pausable, FinalizableCrowdsale, IMP_TokenNumbersManagedCrowdsale {
+contract IMP_Crowdsale is WhitelistedCrowdsale, Pausable, FinalizableCrowdsale, IMP_TokenNumbersManagedCrowdsale, IMP_DiscountCrowdsale {
 
   uint256 private pendingTokens;  //  tokens calculated for current tx
 
@@ -27,19 +27,23 @@ contract IMP_Crowdsale is WhitelistedCrowdsale, Pausable, FinalizableCrowdsale, 
    * @param _token                        Token used for crowdsale
    * @param _wallet                       Wallet used for crowdsale
    * @param _timings                      Crowdsale timings:
-   * 0 - openingTimestamp
-   * 1 - closingTimestamp
+   * first idx - openingTimestamp
+   * middle idxs - discount week closing timestamps
+   * last idx - closingTimestamp (last week closing timestamp)
+   * @param _stageDiscounts               Discount for each stage in %
    */
   constructor(
     IMP_Token _token, 
     address _crowdsaleSharedLedger, 
     address _wallet, 
+    uint256 _rateETH,
     uint256[] _timings,
-    uint256 _rateETH
+    uint256[] _stageDiscounts
     ) 
     Crowdsale(1, _wallet, _token)
-    TimedCrowdsale(_timings[0], _timings[1])
+    TimedCrowdsale(_timings[0], _timings[_timings.length.sub(1)])
     IMP_TokenNumbersManagedCrowdsale(_crowdsaleSharedLedger, _rateETH)
+    IMP_DiscountCrowdsale(_stageDiscounts, _timings)
       public {      
         token = IMP_Token(_token);
   }
@@ -89,11 +93,16 @@ contract IMP_Crowdsale is WhitelistedCrowdsale, Pausable, FinalizableCrowdsale, 
    * @param _weiAmount Value in wei to be converted into tokens
    * @return Number of tokens that can be purchased with the specified _weiAmount
    */
-  function calculateTokenAmount(uint256 _weiAmount) public view returns (uint256) {
+  function calculateTokenAmount(uint256 _weiAmount) public view returns (uint256 tokens) {
     require(_weiAmount >= minimumPurchaseWei, "minimum purchase wei not reached");
 
-    return _weiAmount.mul(rateETH).mul(10**4).div(10**18);
     //  TODO: calculate properly
+    uint256 basicTokens = _weiAmount.mul(rateETH).mul(10**4).div(10**18);
+    
+    uint256 discount = currentDiscount();
+    uint256 bonusTokens = basicTokens.div(100).mul(discount);
+    
+    tokens = basicTokens.add(bonusTokens);
   }
 
 

@@ -18,7 +18,11 @@ module.exports = (deployer, network, accounts) => {
   const CROWDSALE_RATE_ETH = 200; // tokens per ETH, no decimals, TODO: correct values
 
   const CROWDSALE_OPENING = web3.eth.getBlock("latest").timestamp + IncreaseTime.duration.minutes(1);
-  const CROWDSALE_CLOSING = CROWDSALE_OPENING + IncreaseTime.duration.weeks(6);
+  
+  let timings = [];
+    for (i = 0; i < 7; i++) {
+        timings[i] = CROWDSALE_OPENING + IncreaseTime.duration.weeks(i);
+    }
   
   const TOKEN_PERCENTAGE_RESERVED_PRE_ICO = 30;
   const TOKEN_PERCENTAGE_RESERVED_ICO = 44;
@@ -26,8 +30,10 @@ module.exports = (deployer, network, accounts) => {
   const TOKEN_PERCENTAGE_RESERVED_PLATFORM = 5;
   const TOKEN_PERCENTAGE_RESERVED_AIRDROPS = 2;
 
-  const PRE_ICO_DISCOUNTS = [20, 10]; //  including each edge
-  const ICO_DISCOUNTS = [10, 0]; //  including each edge
+  const PRE_ICO_DISCOUNTS = [20, 18, 16, 14, 12, 10]; //  including each edge
+  const ICO_DISCOUNTS = [10, 9, 8, 7, 6, 5, 4, 3]; //  including each edge
+
+  console.log("timings: ", timings);
   
   deployer.deploy(IMP_Token, TOKEN_NAME, TOKEN_SYMBOL, TOKEN_DECIMALS).then(async () => {
       let token = await IMP_Token.deployed();
@@ -49,8 +55,9 @@ module.exports = (deployer, network, accounts) => {
         token.address, 
         sharedLedger.address, 
         CROWDSALE_WALLET, 
-        [CROWDSALE_OPENING, CROWDSALE_CLOSING],
-        CROWDSALE_RATE_ETH);
+        CROWDSALE_RATE_ETH, 
+        timings, 
+        PRE_ICO_DISCOUNTS);
       
       let crowdsale = await IMP_Crowdsale.deployed();
 

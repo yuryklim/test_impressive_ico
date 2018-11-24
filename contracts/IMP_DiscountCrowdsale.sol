@@ -5,7 +5,16 @@ import "../node_modules/zeppelin-solidity/contracts/ownership/Ownable.sol";
 
 /**
  * @title IMP_DiscountCrowdsale
- * @dev IMP_DiscountCrowdsale is a contract for managing discounts during crowdsale.
+ * @dev IMP_DiscountCrowdsale is a contract for managing stages and discounts during crowdsale.
+ */
+
+/**
+ * 1 week = 20%
+ * 2 week = 18%
+ * 3 week = 16%
+ * 4 week = 14%
+ * 5 week = 12%
+ * 6 week = 10%
  */
 contract IMP_DiscountCrowdsale is Ownable {
 
@@ -14,64 +23,45 @@ contract IMP_DiscountCrowdsale is Ownable {
   //  end of each week in timestamp
   uint256[] private discountEdges;
   
-  //  discount for each discount edge
-  mapping (uint8 => uint256) private discounts;
+  //  in %
+  uint256[] public stageDiscounts;
+  uint256[] public stageEdges;  
   
   /**
    *  PUBLIC
    */
   
-  constructor(
-    uint256 _openingTime, 
-    uint256 _closingTime, 
-    uint256 _maxDiscount, 
-    uint256 _minDiscount) public {
-    initDiscountEdges(_openingTime, _closingTime);
-    initDiscounts(_maxDiscount, _minDiscount);
+  constructor(uint256[] _stageDiscounts, uint256[] _weekTimestamps) public {
+    require(_stageDiscounts.length > 0, "empty discounts");
+    require(_stageDiscounts.length == _weekTimestamps.length.sub(1), "discounts count must be == stages count");
+    stageDiscounts = _stageDiscounts;
+    intitStageEdges(stageEdges, _weekTimestamps);
   }
 
-  function currentDiscount() public view returns(uint256) {
-    for (uint8 index = 0; index < discountEdges.length; index++) {
-      if(now < discountEdges[index]) {
-        return discounts[index];
+  /**
+  * @dev Calculate crowdsale discount
+  * @return Discount for current stage
+  */
+  function currentDiscount() public view returns(uint256 discount) {
+    for(uint i = 0; i < stageEdges.length; i ++) {
+      if(now <= stageEdges[i]) {
+        discount = stageDiscounts[i];
       }
     }
   }
 
   /**
-   *  PRIVATE
-   */
-
-  function initDiscountEdges(uint256 _openingTime, uint256 _closingTime) private {
-   
-    uint256 week = 604800;
-   
-    uint256 nextTimestamp = _openingTime;
-   
-    while(nextTimestamp.add(week) <= _closingTime) {
-      nextTimestamp = nextTimestamp.add(week);
-      discountEdges.push(nextTimestamp);
+  * @dev Create stageEdges from week timestamps array
+  * @param _stageEdges      stages array passed as reference
+  * @param _weekTimestamps   crowdsale week timestamps
+  */
+  function intitStageEdges(uint256[] storage _stageEdges, uint256[] _weekTimestamps) private {
+    for(uint i = 0; i < _weekTimestamps.length; i ++) {
+      //  exclude first element - crowdsale opening timestamp
+      if(i == 0) {
+        continue;
+      }
+      _stageEdges.push(_weekTimestamps[i]);      
     }
-   
-    require(nextTimestamp == _closingTime, "Wrong _openingTime and _closingTime relation");
-  
-  }
-  
-  function initDiscounts(uint256 _maxDiscount, uint256 _minDiscount) private {
-    
-    uint8 discountEdgesLength = uint8(discountEdges.length);
-    
-    uint256 discountDiff = _maxDiscount - _minDiscount;
-    
-    uint256 discountStep = discountDiff / (discountEdgesLength - 1);
-    
-    discounts[0] = _maxDiscount;
-    
-    for (uint8 index = 1; index < discountEdgesLength; index++) {
-      discounts[index] = _maxDiscount - (discountStep * index);
-    }
-    
-    require(discounts[discountEdgesLength - 1] == _minDiscount, "wrong last discount");
-  
-  }
+  } 
 }
