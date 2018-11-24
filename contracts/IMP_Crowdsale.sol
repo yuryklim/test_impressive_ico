@@ -120,9 +120,8 @@ contract IMP_Crowdsale is WhitelistedCrowdsale, Pausable, FinalizableCrowdsale, 
   function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal whenNotPaused {
     require(_weiAmount >= minimumPurchaseWei, "minimum purchase wei not reached");
 
-    pendingTokens = _weiAmount.mul(rateETH).mul(10**4).div(10**18);
-    //  TODO: calculate properly
-
+    pendingTokens = calculateTokenAmount(_weiAmount);
+    
     validateMintLimitsForPurchase(pendingTokens);
 
     super._preValidatePurchase(_beneficiary, _weiAmount);
@@ -175,6 +174,10 @@ contract IMP_Crowdsale is WhitelistedCrowdsale, Pausable, FinalizableCrowdsale, 
     super.finalization();
     finalizeCrowdsale();
     selfdestruct(owner);
+  }
+
+  function currentDiscount() public view onlyWhileOpen returns(uint256 discount) {
+    discount = super.currentDiscount();
   }
 
   /**
