@@ -4,7 +4,7 @@ let mock = {
     crowdsaleWallet: 000000,
     crowdsaleTotalSupplyLimit: 100000000, //  no decimals
     crowdsalePreICODiscounts: [20, 18, 16, 14, 12, 10], //  including each edge
-    crowdsaleICODiscounts: [10, 9, 8, 7, 6, 5, 4, 3], //  including each edge
+    crowdsaleICODiscounts: [10, 9, 8], //  including each edge
     tokenPercentageReservedPreICO: 30,
     tokenPercentageReservedICO: 44,
     tokenPercentageReservedTeam: 18,

@@ -2,6 +2,7 @@ let IMP_Crowdsale = artifacts.require("IMP_Crowdsale.sol");
 
 const expectThrow = require('./helpers/expectThrow');
 const Reverter = require('./helpers/reverter');
+const IncreaseTime = require("./helpers/increaseTime.js");
 
 let crowdsale;
 
@@ -40,11 +41,6 @@ contract("Pausable", (accounts) => {
       await expectThrow(crowdsale.pause({
         from: ACC_1
       }), "should not allow not owner to pause");
-
-      await crowdsale.sendTransaction({
-        from: ACC_1,
-        value: web3.toWei(1, "ether")
-      });
 
       await expectThrow(crowdsale.unpause({
         from: ACC_1

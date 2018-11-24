@@ -15,7 +15,7 @@ module.exports = (deployer, network, accounts) => {
   const CROWDSALE_WALLET = accounts[4];
   const CROWDSALE_TOTAL_SUPPLY_LIMIT = 100000000;
 
-  const CROWDSALE_RATE_ETH = 200; // tokens per ETH, no decimals, TODO: correct values
+  const CROWDSALE_RATE_ETH = 100; // tokens per ETH, no decimals, TODO: correct values
 
   const CROWDSALE_OPENING = web3.eth.getBlock("latest").timestamp + IncreaseTime.duration.minutes(1);
   
@@ -33,8 +33,6 @@ module.exports = (deployer, network, accounts) => {
   const PRE_ICO_DISCOUNTS = [20, 18, 16, 14, 12, 10]; //  including each edge
   const ICO_DISCOUNTS = [10, 9, 8, 7, 6, 5, 4, 3]; //  including each edge
 
-  console.log("timings: ", timings);
-  
   deployer.deploy(IMP_Token, TOKEN_NAME, TOKEN_SYMBOL, TOKEN_DECIMALS).then(async () => {
       let token = await IMP_Token.deployed();
       
