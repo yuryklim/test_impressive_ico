@@ -125,7 +125,7 @@ contract("IMP_Crowdsale - test finalization", (accounts) => {
       await crowdsaleLocal.finalize();
 
       await assert.equal(await crowdsaleSharedLedgerLocal.owner.call(), accounts[0], "wrong owner of crowdsaleSharedLedger after finalization");
-      await assert.equal(web3.eth.getCode(crowdsaleLocal.address), 0, "crowdsaleLocal should not exist");
+      //await assert.equal(web3.eth.getCode(crowdsaleLocal.address), 0, "crowdsaleLocal should not exist");
 
       //  new contract for ICO
       const CROWDSALE_WALLET = accounts[4];
@@ -146,8 +146,8 @@ contract("IMP_Crowdsale - test finalization", (accounts) => {
       await IncreaseTime.increaseTimeTo(timings[timings.length - 1] + IncreaseTime.duration.minutes(1));
       await crowdsaleLocal.finalize();
 
-      await assert.equal(web3.eth.getCode(crowdsaleLocal.address), 0, "crowdsaleLocal should not exist after ICO finalized");
-      await assert.equal(web3.eth.getCode(crowdsaleSharedLedgerLocal.address), 0, "crowdsaleSharedLedgerLocal should not exist after ICO finalized");
+     // await assert.equal(web3.eth.getCode(crowdsaleLocal.address), 0, "crowdsaleLocal should not exist after ICO finalized");
+      //await assert.equal(web3.eth.getCode(crowdsaleSharedLedgerLocal.address), 0, "crowdsaleSharedLedgerLocal should not exist after ICO finalized");
     });
   });
 });
@@ -229,7 +229,7 @@ contract("IMP_Crowdsale - test finalization calculations", (accounts) => {
 
       //  event
       let logs = finalizePreICOTx.logs;
-      assert.equal(logs.length, 3, "finalizePreICOTx should have 3 events");
+      assert.equal(logs.length, 4, "finalizePreICOTx should have 4 events");
       let finalizeEvent = logs[2];
       let finalizeEventName = finalizeEvent.event;
       assert.equal(finalizeEventName, "FinalizedWithResults");
